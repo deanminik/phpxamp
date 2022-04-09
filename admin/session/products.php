@@ -34,10 +34,30 @@ switch ($action) {
         break;
 
     case "Modify":
+
+        $sqlSentence = $conection->prepare("UPDATE books SET name=:name WHERE id=:id");
+        $sqlSentence->bindParam(':name', $txtName);
+        $sqlSentence->bindParam(':id', $txtID);
+        $sqlSentence->execute();
+
+        if ($txtImage != "") {
+            $sqlSentence = $conection->prepare("UPDATE books SET image=:image WHERE id=:id");
+            $sqlSentence->bindParam(':image', $txtImage);
+            $sqlSentence->bindParam(':id', $txtID);
+            $sqlSentence->execute();
+        }
+
         break;
 
     case "select":
         //echo "select";
+        $sqlSentence = $conection->prepare("SELECT * FROM books WHERE id=:id");
+        $sqlSentence->bindParam(':id', $txtID);
+        $sqlSentence->execute();
+        $book = $sqlSentence->fetch(PDO::FETCH_LAZY); // fetch(PDO::FETCH_LAZY to assing one by one  
+
+        $txtName = $book['name'];
+        $txtImage = $book['image'];
         break;
 
     case "delete":
@@ -74,14 +94,15 @@ $bookList = $sqlSentence->fetchAll(PDO::FETCH_ASSOC);
 
                         <div class="form-group">
                             <label for="txtID">ID</label>
-                            <input type="text" class="form-control" name="txtID" placeholder="ID">
+                            <input type="text" class="form-control" value="<?php echo $txtID; ?>" name="txtID" placeholder="ID">
                         </div>
                         <div class="form-group">
                             <label for="txtName">Name:</label>
-                            <input type="text" class="form-control" name="txtName" placeholder="Name of the book">
+                            <input type="text" class="form-control" value="<?php echo $txtName; ?>" name="txtName" placeholder="Name of the book">
                         </div>
                         <div class="form-group">
                             <label for="fileImage">Image</label>
+                            <?php echo $txtImage; ?>
                             <input type="file" class="form-control" name="txtImage">
                         </div>
 
