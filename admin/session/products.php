@@ -21,7 +21,6 @@ $action = (isset($_POST['action'])) ? $_POST['action'] : "";
 // echo $txtImage . "<br />";
 // echo $action . "<br />";
 
-
 switch ($action) {
     case "Add":
 
@@ -35,11 +34,21 @@ switch ($action) {
         break;
 
     case "Modify":
-        echo "Pressed btn Modify";
+        break;
+
+    case "select":
+        //echo "select";
+        break;
+
+    case "delete":
+        //echo "delete";
+        $sqlSentence = $conection->prepare("DELETE FROM books WHERE id=:id");
+        $sqlSentence->bindParam(':id', $txtID);
+        $sqlSentence->execute();
         break;
 
     case "Cancel":
-        echo "Pressed btn Cancel";
+        //echo "cancel";
         break;
 }
 
@@ -104,10 +113,17 @@ $bookList = $sqlSentence->fetchAll(PDO::FETCH_ASSOC);
                 <tbody>
                     <?php foreach ($bookList as $book) { ?>
                         <tr>
-                            <td> <?php echo $book['id'];?></td>
-                            <td> <?php echo $book['name'];?></td>
-                            <td> <?php echo $book['image'];?></td>
-                            <td> Select | Delete</td>
+                            <td> <?php echo $book['id']; ?></td>
+                            <td> <?php echo $book['name']; ?></td>
+                            <td> <?php echo $book['image']; ?></td>
+                            <td>
+                                <form method="POST">
+                                    <input type="hidden" name="txtID" id="txtID" value="<?php echo $book['id']; ?>" />
+                                    <input type="submit" name="action" value="select" class="btn btn-primary" />
+                                    <input type="submit" name="action" value="delete" class="btn btn-danger" />
+                                </form>
+
+                            </td>
                         </tr>
                     <?php } ?>
                 </tbody>
