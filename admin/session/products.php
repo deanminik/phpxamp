@@ -50,8 +50,27 @@ switch ($action) {
         $sqlSentence->execute();
 
         if ($txtImage != "") {
+
+            // upload the new image 
+            $date = new DateTime();
+            $fileName = ($txtImage != "") ? $date->getTimestamp() . "_" . $_FILES["txtImage"]["name"] : "image_default.jpg";
+            $tmpImage = $_FILES["txtImage"]["tmp_name"];
+            move_uploaded_file($tmpImage, "../../img/" . $fileName);
+
+            // now delete the old image 
+            $sqlSentence = $conection->prepare("SELECT image FROM books WHERE id=:id");
+            $sqlSentence->bindParam(':id', $txtID);
+            $sqlSentence->execute();
+            $book = $sqlSentence->fetch(PDO::FETCH_LAZY); // fetch(PDO::FETCH_LAZY to assing one by one  
+            if (isset($book["image"]) && ($book["image"] != "image_default.jpg")) {
+                if (file_exists("../../img/" . $book["image"])) {
+                    unlink("../../img/" . $book["image"]);
+                }
+            }
+
+
             $sqlSentence = $conection->prepare("UPDATE books SET image=:image WHERE id=:id");
-            $sqlSentence->bindParam(':image', $txtImage);
+            $sqlSentence->bindParam(':image', $fileName);
             $sqlSentence->bindParam(':id', $txtID);
             $sqlSentence->execute();
         }
@@ -84,10 +103,9 @@ switch ($action) {
             if (file_exists("../../img/" . $book["image"])) {
                 // step four then delete        
                 unlink("../../img/" . $book["image"]);
-                echo "delecte";
             }
         }
-
+        // now delete in the database
         $sqlSentence = $conection->prepare("DELETE FROM books WHERE id=:id");
         $sqlSentence->bindParam(':id', $txtID);
         $sqlSentence->execute();
