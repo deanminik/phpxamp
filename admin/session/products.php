@@ -40,6 +40,7 @@ switch ($action) {
         $sqlSentence->bindParam(':image', $fileName);
         $sqlSentence->execute();
         // echo "Pressed btn add";
+        header("Location:products.php");
         break;
 
     case "Modify":
@@ -73,7 +74,9 @@ switch ($action) {
             $sqlSentence->bindParam(':image', $fileName);
             $sqlSentence->bindParam(':id', $txtID);
             $sqlSentence->execute();
+
         }
+        header("Location:products.php");
 
         break;
 
@@ -109,10 +112,12 @@ switch ($action) {
         $sqlSentence = $conection->prepare("DELETE FROM books WHERE id=:id");
         $sqlSentence->bindParam(':id', $txtID);
         $sqlSentence->execute();
+        header("Location:products.php");
         break;
 
     case "Cancel":
         //echo "cancel";
+        header("Location:products.php");
         break;
 }
 
@@ -139,23 +144,28 @@ $bookList = $sqlSentence->fetchAll(PDO::FETCH_ASSOC);
 
                         <div class="form-group">
                             <label for="txtID">ID</label>
-                            <input type="text" class="form-control" value="<?php echo $txtID; ?>" name="txtID" placeholder="ID">
+                            <input type="text" required readonly class="form-control" value="<?php echo $txtID; ?>" name="txtID" placeholder="ID">
                         </div>
                         <div class="form-group">
                             <label for="txtName">Name:</label>
-                            <input type="text" class="form-control" value="<?php echo $txtName; ?>" name="txtName" placeholder="Name of the book">
+                            <input type="text" required class="form-control" value="<?php echo $txtName; ?>" name="txtName" placeholder="Name of the book">
                         </div>
                         <div class="form-group">
-                            <label for="fileImage">Image</label>
+                            <label for="fileImage">Image:</label>
+
                             <?php echo $txtImage; ?>
+                            <br />
+                            <?php if ($txtImage != "") { ?>
+                                <img src="../../img/<?php echo $txtImage ?>" width="50" alt="">
+                            <?php } ?>
                             <input type="file" class="form-control" name="txtImage">
                         </div>
 
                         <!-- b4-bgroup-defult  -->
                         <div class="btn-group" role="group" aria-label="">
-                            <button type="submit" name="action" value="Add" class="btn btn-success">Add</button>
-                            <button type="submit" name="action" value="Modify" class="btn btn-warning">Modify</button>
-                            <button type="submit" name="action" value="Cancel" class="btn btn-info">Cancel</button>
+                            <button type="submit" name="action" <?php echo ($action == "select") ? "disabled" : ""; ?> value="Add" class="btn btn-success">Add</button>
+                            <button type="submit" name="action" <?php echo ($action != "select") ? "disabled" : ""; ?> value="Modify" class="btn btn-warning">Modify</button>
+                            <button type="submit" name="action" <?php echo ($action != "select") ? "disabled" : ""; ?> value="Cancel" class="btn btn-info">Cancel</button>
                         </div>
 
                     </form>
@@ -165,7 +175,7 @@ $bookList = $sqlSentence->fetchAll(PDO::FETCH_ASSOC);
 
         </div>
         <div class="col-md-7">
-            Table of books (show data books)
+
             <!-- b4-table-default  -->
             <table class="table">
                 <thead>
@@ -181,7 +191,10 @@ $bookList = $sqlSentence->fetchAll(PDO::FETCH_ASSOC);
                         <tr>
                             <td> <?php echo $book['id']; ?></td>
                             <td> <?php echo $book['name']; ?></td>
-                            <td> <?php echo $book['image']; ?></td>
+                            <td>
+                                <img src="../../img/<?php echo $book['image']; ?>" width="50" alt="">
+
+                            </td>
                             <td>
                                 <form method="POST">
                                     <input type="hidden" name="txtID" id="txtID" value="<?php echo $book['id']; ?>" />
