@@ -1,6 +1,8 @@
 <?php include("../template/header.php"); ?>
 <?php include("../config/db.php"); ?>
 
+
+
 <?php
 //print_r($_POST); //sending the form you will print the result inside of an array
 // Array ( [txtID] => [txtName] => [action] => Add )
@@ -28,7 +30,14 @@ switch ($action) {
         //$sqlSentence = $conection->prepare("INSERT INTO `books` (`id`, `name`,`image`) VALUES (NULL, 'Marcos', 'newimage.jpg')");
         $sqlSentence = $conection->prepare("INSERT INTO books (name,image) VALUES (:name,:image);");
         $sqlSentence->bindParam(':name', $txtName);
-        $sqlSentence->bindParam(':image', $txtImage);
+        $date = new DateTime();
+        $fileName = ($txtImage != "") ? $date->getTimestamp() . "_" . $_FILES["txtImage"]["name"] : "image_default.jpg";
+        $tmpImage = $_FILES["txtImage"]["tmp_name"];
+        if ($tmpImage != "") {
+            move_uploaded_file($tmpImage, "../../img/" . $fileName);
+        }
+        // $sqlSentence->bindParam(':image', $tmpImage);
+        $sqlSentence->bindParam(':image', $fileName);
         $sqlSentence->execute();
         // echo "Pressed btn add";
         break;
@@ -62,6 +71,23 @@ switch ($action) {
 
     case "delete":
         //echo "delete";
+        //step 1 search the image
+        $sqlSentence = $conection->prepare("SELECT image FROM books WHERE id=:id");
+        $sqlSentence->bindParam(':id', $txtID);
+        $sqlSentence->execute();
+        $book = $sqlSentence->fetch(PDO::FETCH_LAZY); // fetch(PDO::FETCH_LAZY to assing one by one  
+
+        // step two exist the image name? = isset($book["image"]
+
+        if (isset($book["image"]) && ($book["image"] != "image_default.jpg")) {
+            // step three exist in the directory img    
+            if (file_exists("../../img/" . $book["image"])) {
+                // step four then delete        
+                unlink("../../img/" . $book["image"]);
+                echo "delecte";
+            }
+        }
+
         $sqlSentence = $conection->prepare("DELETE FROM books WHERE id=:id");
         $sqlSentence->bindParam(':id', $txtID);
         $sqlSentence->execute();
@@ -80,6 +106,7 @@ $bookList = $sqlSentence->fetchAll(PDO::FETCH_ASSOC);
 
 
 <div class="container">
+
     <div class="row">
         <div class="col-md-5">
             <!-- b4-card-head-foot  -->
