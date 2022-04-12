@@ -1,9 +1,24 @@
-<?php 
+<?php
 
+session_start();
+if ($_POST) {
+    if (($_POST['user'] == 'dean') && ($_POST['password'] == '123')) { // with a data base this is the line to change it 
+        // example : $sqlSentence = $conection->prepare("SELECT * FROM books WHERE id=:id");
+        // $sqlSentence->bindParam(':id', $txtID);
+        // $sqlSentence->execute();
+        // $book = $sqlSentence->fetch(PDO::FETCH_LAZY); // fetch(PDO::FETCH_LAZY to assing one by one  
+        // $txtName = $book['name'];
+        // $txtImage = $book['image'];
 
-if($_POST){
-    header("Location:home.php");
+        $_SESSION['user'] = "ok";
+        $_SESSION['userName'] = "dean";
+        header("Location:home.php");
+    } else {
+        $message = "User or password are incorrect";
+    }
 }
+
+
 ?>
 
 <!doctype html>
@@ -31,6 +46,11 @@ if($_POST){
                         Login
                     </div>
                     <div class="card-body">
+                        <?php if (isset($message)) { ?>
+                            <div class="alert alert-danger" role="alert">
+                                <?php echo $message ?>
+                            </div>
+                        <?php   } ?>
                         <form method="POST">
                             <div class="form-group">
                                 <label for="exampleInputEmail1">User</label>
